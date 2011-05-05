@@ -7,12 +7,16 @@
 %% ----------------------------------------------------------------------
 
 start() ->
-    Port = case application:get_env(port) of
-        {ok, P} -> P;
-        _       -> 55672
+    PortL = case application:get_env(port) of
+        {ok, P} -> [{port, P}];
+        _       -> [{port, 55672}]
     end,
+    Options = case application:get_env(mochiweb_http_options) of
+		  {ok, L} -> L ++ PortL;
+		  _       -> PortL
+	      end,
     Loop = fun loop/1,
-    mochiweb_http:start([{name, ?MODULE}, {port, Port}, {loop, Loop}]).
+    mochiweb_http:start([{name, ?MODULE}, {loop, Loop}] ++ Options).
 
 stop() ->
     mochiweb_http:stop(?MODULE).
